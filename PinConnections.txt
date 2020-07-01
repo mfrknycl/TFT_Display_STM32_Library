@@ -1,0 +1,24 @@
+
+Datasheet :  https://www.st.com/resource/en/datasheet/stm32f030f4.pdf
+Microcontroller : STM32f030K6T6
+
+CD pin                   STM32f030K6T6 Pins
+-------                  ------------------
+1 GND                       GND 
+2 VCC 			    		VCC
+3 SCL (or SCLK)             PA5 -> 11
+4 SDA (or MOSI)             PA7 -> 13
+5 RES (or RST)              PA12 -> 22
+6 DC                        PA2 -> 8
+7 CS                        PA3 -> 9
+8 BL (light)                PA8 -> 18
+
+
+GND           --> Power and signal ground pin.
+Vin (3.5V)    --> Power pin that can be connected to 3-5VDC. It comes with reverse polarity protection.
+SCL (or SCLK) --> It is the SPI clock input pin.
+SDA (or MOSI) --> This is the SPI Master in Slave Out pin which is mostly used by the SD card and also for debugging TFT.
+RES           --> The TFT comes with an auto-reset circuit which gets active on every breakout. However, a user can reset the module using this pin also, in case setup is not resetting clean.
+D/C           --> SPI data or command selector pin.
+CS            --> SPI chip select pin (Just before data is sent to the slave, the line is brought low, which activates the slave. When you're done using the slave, the line is made high again.)
+BL            --> It is the PWM input to control the backlight. By default, it is pulled high which means backlight is ON. The PWM can be done on any frequency and it can also be pulled down to turn off the backlight.  

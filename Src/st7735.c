@@ -1,10 +1,13 @@
-#include "TFT_DISPLAY.h"
-#include "main.h"
+/* vim: set ai et ts=4 sw=4: */
+#include "stm32f0xx_hal.h"
+#include "st7735.h"
 
-extern SPI_HandleTypeDef hspi1;
+#define DELAY 0x80
+
+HAL_StatusTypeDef disp_HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size, uint32_t Timeout);
 
 // based on Adafruit ST7735 library for Arduino
-static const uint8_t
+const uint8_t
   init_cmds1[] = {            // Init for 7735R, part 1 (red or green tab)
     15,                       // 15 commands in list:
     ST7735_SWRESET,   DELAY,  //  1: Software reset, 0 args, w/delay
@@ -82,54 +85,30 @@ static const uint8_t
     ST7735_DISPON ,    DELAY, //  4: Main screen turn on, no args w/delay
       100 };                  //     100 ms delay
 
-
-/**
-	*	@brief
-	* @param none
-	* @retval none
-	*/
-static void ST7735_Select(){
-    HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET);
+static void ST7735_Select() {
+    HAL_GPIO_WritePin(ST7735_CS_GPIO_Port, ST7735_CS_Pin, GPIO_PIN_RESET);
 }
 
-/**
-	*	@brief
-	* @param none
-	* @retval none
-	*/
-void ST7735_Unselect(){
-    HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);
+void ST7735_Unselect(void) {
+    HAL_GPIO_WritePin(ST7735_CS_GPIO_Port, ST7735_CS_Pin, GPIO_PIN_SET);
 }
 
-/**
-	*	@brief
-	* @param none
-	* @retval none
-	*/
-static void ST7735_Reset(){
-    HAL_GPIO_WritePin(LCD_RES_GPIO_Port, LCD_RES_Pin, GPIO_PIN_RESET);
+static void ST7735_Reset() {
+    HAL_GPIO_WritePin(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_RESET);
     HAL_Delay(5);
-    HAL_GPIO_WritePin(LCD_RES_GPIO_Port, LCD_RES_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_SET);
 }
 
-/**
-	*	@brief
-	* @param none
-	* @retval none??
-	*/
-static void ST7735_WriteCommand(uint8_t cmd){
-    HAL_GPIO_WritePin(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(&hspi1, &cmd, sizeof(cmd), HAL_MAX_DELAY);
+
+
+static void ST7735_WriteCommand(uint8_t cmd) {
+    HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_RESET);
+    disp_HAL_SPI_Transmit(&ST7735_SPI_PORT, &cmd, sizeof(cmd), HAL_MAX_DELAY);
 }
 
-/**
-	*	@brief
-	* @param none
-	* @retval none
-	*/
-static void ST7735_WriteData(uint8_t* buff, size_t buff_size){
-    HAL_GPIO_WritePin(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);
-    HAL_SPI_Transmit(&hspi1, buff, buff_size, HAL_MAX_DELAY);
+static void ST7735_WriteData(uint8_t* buff, size_t buff_size) {
+    HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
+    disp_HAL_SPI_Transmit(&ST7735_SPI_PORT, buff, buff_size, HAL_MAX_DELAY);
 }
 
 static void ST7735_ExecuteCommandList(const uint8_t *addr) {
@@ -232,7 +211,6 @@ static void ST7735_WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint
 }
 */
 
-//**********Display Strings**********************************
 void ST7735_WriteString(uint16_t x, uint16_t y, const char* str, FontDef font, uint16_t color, uint16_t bgcolor) {
     ST7735_Select();
 
@@ -261,10 +239,7 @@ void ST7735_WriteString(uint16_t x, uint16_t y, const char* str, FontDef font, u
 //**********Display Integer Numbers**********************************
 void ST7735_WriteInt(uint16_t x, uint16_t y, const int var, FontDef font, uint16_t color, uint16_t bgcolor) {
 	char str1[16];
-	//**********
-	intToStr(var, str1, 10);
-	//**********
-	//sprintf(str1, "%d", var);
+	sprintf(str1, "%d", var);
 	
 	const char* str = (char*)str1;
 		
@@ -298,9 +273,8 @@ void ST7735_WriteInt(uint16_t x, uint16_t y, const int var, FontDef font, uint16
 //**********Display Floating Numbers**********************************
 void ST7735_WriteFloat(uint16_t x, uint16_t y, const float var, FontDef font, uint16_t color, uint16_t bgcolor) {
 	char str1[16];
-
 	sprintf(str1,"%.2f", var);
-	
+	//snprintf(str1, sizeof(str1), "%.2f", var);
 	const char* str = (char*)str1;
 		
 	 ST7735_Select();
@@ -344,10 +318,10 @@ void ST7735_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16
     ST7735_SetAddressWindow(x, y, x+w-1, y+h-1);
 
     uint8_t data[] = { color >> 8, color & 0xFF };
-    HAL_GPIO_WritePin(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
     for(y = h; y > 0; y--) {
         for(x = w; x > 0; x--) {
-            HAL_SPI_Transmit(&hspi1, data, sizeof(data), HAL_MAX_DELAY);
+            disp_HAL_SPI_Transmit(&ST7735_SPI_PORT, data, sizeof(data), HAL_MAX_DELAY);
         }
     }
 
@@ -375,59 +349,4 @@ void ST7735_InvertColors(bool invert) {
     ST7735_Unselect();
 }
 
-char* intToStr(int num, char* str, int base) 
-{ 
-    int i = 0; 
-    bool isNegative = false; 
-  
-    /* Handle 0 explicitely, otherwise empty string is printed for 0 */
-    if (num == 0) 
-    { 
-        str[i++] = '0'; 
-        str[i] = '\0'; 
-        return str; 
-    } 
-  
-    // In standard itoa(), negative numbers are handled only with  
-    // base 10. Otherwise numbers are considered unsigned. 
-    if (num < 0 && base == 10) 
-    { 
-        isNegative = true; 
-        num = -num; 
-    } 
-  
-    // Process individual digits 
-    while (num != 0) 
-    { 
-        int rem = num % base; 
-        str[i++] = (rem > 9)? (rem-10) + 'a' : rem + '0'; 
-        num = num/base; 
-    } 
-  
-    // If number is negative, append '-' 
-    if (isNegative) 
-        str[i++] = '-'; 
-  
-    str[i] = '\0'; // Append string terminator 
-  
-    // Reverse the string 
-    reverse(str, i); 
-  
-    return str; 
-} 
 
-
-//*************************************************
-
-// Reverses a string 'str' of length 'len' 
-void reverse(char* str, int len) 
-{ 
-    int i = 0, j = len - 1, temp; 
-    while (i < j) { 
-        temp = str[i]; 
-        str[i] = str[j]; 
-        str[j] = temp; 
-        i++; 
-        j--; 
-    } 
-} 

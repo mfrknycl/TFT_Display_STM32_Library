@@ -1,17 +1,12 @@
-#ifndef __TFT_DISPLAY__
-#define __TFT_DISPLAY__
+/* vim: set ai et ts=4 sw=4: */
+#ifndef __ST7735_H__
+#define __ST7735_H__
 
-/* Includes ---------------------------------------------------- */
-#include "stm32f0xx.h"
-#include <stdbool.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
 #include "fonts.h"
-
-/* Private defines ---------------------------------------------------- */
-
-#define DELAY 0x80
+#include <stdbool.h>
+#include "stm32f0xx_hal.h"
+#include "main.h"
+#include "Disp_HAL_SPI_TX.h"
 
 #define ST7735_MADCTL_MY  0x80
 #define ST7735_MADCTL_MX  0x40
@@ -21,16 +16,20 @@
 #define ST7735_MADCTL_BGR 0x08
 #define ST7735_MADCTL_MH  0x04
 
-/*
+/*** Redefine if necessary ***/
+extern SPI_HandleTypeDef hspi1;
 #define ST7735_SPI_PORT hspi1
 
-#define ST7735_RES_Pin       GPIO_PIN_7
-#define ST7735_RES_GPIO_Port GPIOC
-#define ST7735_CS_Pin        GPIO_PIN_6
-#define ST7735_CS_GPIO_Port  GPIOB
-#define ST7735_DC_Pin        GPIO_PIN_9
+
+#define ST7735_RES_Pin       GPIO_PIN_12
+#define ST7735_RES_GPIO_Port GPIOA
+#define ST7735_CS_Pin        GPIO_PIN_3
+#define ST7735_CS_GPIO_Port  GPIOA
+#define ST7735_DC_Pin        GPIO_PIN_2
 #define ST7735_DC_GPIO_Port  GPIOA
-*/
+
+
+
 // AliExpress/eBay 1.8" display, default orientation
 /*
 #define ST7735_IS_160X128 1
@@ -82,24 +81,25 @@
 */
 
 // WaveShare ST7735S-based 1.8" display, rotate right
-/*
+
 #define ST7735_IS_160X128 1
 #define ST7735_WIDTH  160
 #define ST7735_HEIGHT 128
 #define ST7735_XSTART 1
 #define ST7735_YSTART 2
 #define ST7735_ROTATION (ST7735_MADCTL_MY | ST7735_MADCTL_MV | ST7735_MADCTL_RGB)
-*/
+
 
 // WaveShare ST7735S-based 1.8" display, rotate left
 
+/*
 #define ST7735_IS_160X128 1
 #define ST7735_WIDTH  160
 #define ST7735_HEIGHT 128
 #define ST7735_XSTART 1
 #define ST7735_YSTART 2
 #define ST7735_ROTATION (ST7735_MADCTL_MX | ST7735_MADCTL_MV | ST7735_MADCTL_RGB)
-
+*/
 
 // WaveShare ST7735S-based 1.8" display, upside down
 /*
@@ -110,6 +110,8 @@
 #define ST7735_YSTART 1
 #define ST7735_ROTATION (ST7735_MADCTL_RGB)
 */
+
+/****************************/
 
 #define ST7735_NOP     0x00
 #define ST7735_SWRESET 0x01
@@ -168,17 +170,8 @@
 #define ST7735_WHITE   0xFFFF
 #define ST7735_COLOR565(r, g, b) (((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3))
 
-/* Typedef Decleration ---------------------------------------------------- */
-
-
-
-/* Fucntion Decleration ---------------------------------------------------- */
-void ST7735_Unselect();
-
-char* intToStr(int num, char* str, int base) ;
-//double atof(char* num);
-void reverse(char* str, int len);
-
+// call before initializing any SPI devices
+void ST7735_Unselect(void);
 
 void ST7735_WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color, uint16_t bgcolor);
 void ST7735_WriteInt(uint16_t x, uint16_t y, const int str, FontDef font, uint16_t color, uint16_t bgcolor);
@@ -192,8 +185,4 @@ void ST7735_FillScreen(uint16_t color);
 void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t* data);
 void ST7735_InvertColors(bool invert);
 
-
-
-
-
-#endif //__TFT_DISPLAY__
+#endif // __ST7735_H__

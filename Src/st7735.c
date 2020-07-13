@@ -85,32 +85,61 @@ const uint8_t
     ST7735_DISPON ,    DELAY, //  4: Main screen turn on, no args w/delay
       100 };                  //     100 ms delay
 
+			
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/			
 static void ST7735_Select() {
     HAL_GPIO_WritePin(ST7735_CS_GPIO_Port, ST7735_CS_Pin, GPIO_PIN_RESET);
 }
 
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/		
 void ST7735_Unselect(void) {
     HAL_GPIO_WritePin(ST7735_CS_GPIO_Port, ST7735_CS_Pin, GPIO_PIN_SET);
 }
 
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/		
 static void ST7735_Reset() {
     HAL_GPIO_WritePin(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_RESET);
     HAL_Delay(5);
     HAL_GPIO_WritePin(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_SET);
 }
 
-
-
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/		
 static void ST7735_WriteCommand(uint8_t cmd) {
     HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_RESET);
     disp_HAL_SPI_Transmit(&ST7735_SPI_PORT, &cmd, sizeof(cmd), HAL_MAX_DELAY);
 }
 
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/		
 static void ST7735_WriteData(uint8_t* buff, size_t buff_size) {
     HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
     disp_HAL_SPI_Transmit(&ST7735_SPI_PORT, buff, buff_size, HAL_MAX_DELAY);
 }
 
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/		
 static void ST7735_ExecuteCommandList(const uint8_t *addr) {
     uint8_t numCommands, numArgs;
     uint16_t ms;
@@ -137,6 +166,11 @@ static void ST7735_ExecuteCommandList(const uint8_t *addr) {
     }
 }
 
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/		
 static void ST7735_SetAddressWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
     // column address set
     ST7735_WriteCommand(ST7735_CASET);
@@ -153,7 +187,13 @@ static void ST7735_SetAddressWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t 
     ST7735_WriteCommand(ST7735_RAMWR);
 }
 
-void ST7735_Init() {
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/		
+void ST7735_Init(){
+	  ST7735_SetBaudRate();
     ST7735_Select();
     ST7735_Reset();
     ST7735_ExecuteCommandList(init_cmds1);
@@ -162,6 +202,11 @@ void ST7735_Init() {
     ST7735_Unselect();
 }
 
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/		
 void ST7735_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
     if((x >= ST7735_WIDTH) || (y >= ST7735_HEIGHT))
         return;
@@ -175,6 +220,11 @@ void ST7735_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
     ST7735_Unselect();
 }
 
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/		
 static void ST7735_WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color, uint16_t bgcolor) {
     uint32_t i, b, j;
 
@@ -211,18 +261,22 @@ static void ST7735_WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint
 }
 */
 
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/		
 void ST7735_WriteString(uint16_t x, uint16_t y, const char* str, FontDef font, uint16_t color, uint16_t bgcolor) {
     ST7735_Select();
 
     while(*str) {
-        if(x + font.width >= ST7735_WIDTH) {
+        if(x + font.width >= ST7735_WIDTH){
             x = 0;
             y += font.height;
-            if(y + font.height >= ST7735_HEIGHT) {
+            if(y + font.height >= ST7735_HEIGHT){
                 break;
             }
-
-            if(*str == ' ') {
+            if(*str == ' '){
                 // skip spaces in the beginning of the new line
                 str++;
                 continue;
@@ -237,7 +291,13 @@ void ST7735_WriteString(uint16_t x, uint16_t y, const char* str, FontDef font, u
     ST7735_Unselect();
 }
 //**********Display Integer Numbers**********************************
-void ST7735_WriteInt(uint16_t x, uint16_t y, const int var, FontDef font, uint16_t color, uint16_t bgcolor) {
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/		
+void ST7735_WriteInt(uint16_t x, uint16_t y, const int var, FontDef font, uint16_t color, uint16_t bgcolor){
+
 	char str1[16];
 	sprintf(str1, "%d", var);
 	
@@ -245,15 +305,15 @@ void ST7735_WriteInt(uint16_t x, uint16_t y, const int var, FontDef font, uint16
 		
 	 ST7735_Select();
 	
-    while(*str) {
-        if(x + font.width >= ST7735_WIDTH) {
+    while(*str){
+        if(x + font.width >= ST7735_WIDTH){
             x = 0;
             y += font.height;
-            if(y + font.height >= ST7735_HEIGHT) {
+            if(y + font.height >= ST7735_HEIGHT){
                 break;
             }
 
-            if(*str == ' ') {
+            if(*str == ' '){
                 // skip spaces in the beginning of the new line
                 str++;
                 continue;
@@ -264,14 +324,16 @@ void ST7735_WriteInt(uint16_t x, uint16_t y, const int var, FontDef font, uint16
         x += font.width;
         str++;
     }
-
     ST7735_Unselect();
-
-
 }
 
 //**********Display Floating Numbers**********************************
-void ST7735_WriteFloat(uint16_t x, uint16_t y, const float var, FontDef font, uint16_t color, uint16_t bgcolor) {
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/		
+void ST7735_WriteFloat(uint16_t x, uint16_t y, const float var, FontDef font, uint16_t color, uint16_t bgcolor){
 	char str1[16];
 	sprintf(str1,"%.2f", var);
 	//snprintf(str1, sizeof(str1), "%.2f", var);
@@ -279,15 +341,15 @@ void ST7735_WriteFloat(uint16_t x, uint16_t y, const float var, FontDef font, ui
 		
 	 ST7735_Select();
 	
-    while(*str) {
-        if(x + font.width >= ST7735_WIDTH) {
+    while(*str){
+        if(x + font.width >= ST7735_WIDTH){
             x = 0;
             y += font.height;
             if(y + font.height >= ST7735_HEIGHT) {
                 break;
             }
 
-            if(*str == ' ') {
+            if(*str == ' '){
                 // skip spaces in the beginning of the new line
                 str++;
                 continue;
@@ -298,17 +360,15 @@ void ST7735_WriteFloat(uint16_t x, uint16_t y, const float var, FontDef font, ui
         x += font.width;
         str++;
     }
-
     ST7735_Unselect();
-
-
 }
 
-
-
-
-
-void ST7735_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color) {
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/		
+void ST7735_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color){
     // clipping
     if((x >= ST7735_WIDTH) || (y >= ST7735_HEIGHT)) return;
     if((x + w - 1) >= ST7735_WIDTH) w = ST7735_WIDTH - x;
@@ -319,20 +379,29 @@ void ST7735_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16
 
     uint8_t data[] = { color >> 8, color & 0xFF };
     HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
-    for(y = h; y > 0; y--) {
-        for(x = w; x > 0; x--) {
+    for(y = h; y > 0; y--){
+        for(x = w; x > 0; x--){
             disp_HAL_SPI_Transmit(&ST7735_SPI_PORT, data, sizeof(data), HAL_MAX_DELAY);
         }
     }
-
     ST7735_Unselect();
 }
 
-void ST7735_FillScreen(uint16_t color) {
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/		
+void ST7735_FillScreen(uint16_t color){
     ST7735_FillRectangle(0, 0, ST7735_WIDTH, ST7735_HEIGHT, color);
 }
 
-void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t* data) {
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/		
+void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t* data){
     if((x >= ST7735_WIDTH) || (y >= ST7735_HEIGHT)) return;
     if((x + w - 1) >= ST7735_WIDTH) return;
     if((y + h - 1) >= ST7735_HEIGHT) return;
@@ -343,10 +412,49 @@ void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint
     ST7735_Unselect();
 }
 
-void ST7735_InvertColors(bool invert) {
+/**
+	* @brief
+	*	@param
+	*	@retval
+	*/		
+void ST7735_InvertColors(bool invert){
     ST7735_Select();
     ST7735_WriteCommand(invert ? ST7735_INVON : ST7735_INVOFF);
     ST7735_Unselect();
+}
+
+void ST7735_SetBaudRate(){
+	
+  /* USER CODE BEGIN SPI1_Init 0 */
+
+  /* USER CODE END SPI1_Init 0 */
+
+  /* USER CODE BEGIN SPI1_Init 1 */
+
+  /* USER CODE END SPI1_Init 1 */
+  /* SPI1 parameter configuration*/
+  hspi1.Instance = SPI1;
+  hspi1.Init.Mode = SPI_MODE_MASTER;
+  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi1.Init.CLKPolarity = SPI_POLARITY_HIGH;
+  hspi1.Init.CLKPhase = SPI_PHASE_2EDGE;
+  hspi1.Init.NSS = SPI_NSS_SOFT;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi1.Init.CRCPolynomial = 7;
+  hspi1.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
+  hspi1.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
+  if (HAL_SPI_Init(&hspi1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN SPI1_Init 2 */
+
+  /* USER CODE END SPI1_Init 2 */
+
 }
 
 

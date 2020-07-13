@@ -1,13 +1,18 @@
-/* vim: set ai et ts=4 sw=4: */
 #ifndef __ST7735_H__
 #define __ST7735_H__
 
-#include "fonts.h"
+/* Includes ---------------------------------------------------- */
 #include <stdbool.h>
+#include <stdio.h> 
+
+#include "stm32f0xx.h"
+#include "fonts.h"
 #include "stm32f0xx_hal.h"
 #include "main.h"
 #include "Disp_HAL_SPI_TX.h"
 
+
+/* Private defines ---------------------------------------------------- */
 #define ST7735_MADCTL_MY  0x80
 #define ST7735_MADCTL_MX  0x40
 #define ST7735_MADCTL_MV  0x20
@@ -170,6 +175,10 @@ extern SPI_HandleTypeDef hspi1;
 #define ST7735_WHITE   0xFFFF
 #define ST7735_COLOR565(r, g, b) (((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3))
 
+/* Typedef Decleration ---------------------------------------------------- */
+
+
+/* Fucntion Decleration ---------------------------------------------------- */
 // call before initializing any SPI devices
 void ST7735_Unselect(void);
 
@@ -185,4 +194,6 @@ void ST7735_FillScreen(uint16_t color);
 void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t* data);
 void ST7735_InvertColors(bool invert);
 
-#endif // __ST7735_H__
+void ST7735_SetBaudRate();
+
+#endif //__ST7735_H__

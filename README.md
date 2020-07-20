@@ -94,3 +94,7 @@ void ST7735_SetBaudRate(void);
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+## Credits
+
+This library converted from [Adafruit Arduino Library](https://github.com/adafruit/Adafruit-ST7735-Library) to STM32 core. I would like to thank to Adafruit for creating this Arduino library.

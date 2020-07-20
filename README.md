@@ -56,13 +56,19 @@ if (HAL_SPI_Init(&hspi1) != HAL_OK)
 ```
 ### Prerequisites
 
-Install HAL library for the STM32
+Include HAL library for the STM32
 
 ```c
 #include "stm32f0xx_hal.h"
 ```
 
-Install the M90E32AS Library
+Include `Disp_HAL_SPI_TX.h` library for SPI Transmit instead of HAL SPI Transmit function. Other functions can stay the same.
+This library is just for SPI Transmit.
+```c
+#include "Disp_HAL_SPI_TX.h"
+```
+
+Include the M90E32AS Library
 
 ```c
 #include "TFT_DISPLAY.h"

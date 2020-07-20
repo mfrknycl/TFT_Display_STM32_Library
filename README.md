@@ -22,7 +22,7 @@ int main(void){
 }
 ```
 
-Following code segment shows that how SPI is configurated using STM32CubeMX software.
+Following code segment shows that how SPI is configurated using STM32CubeMX software. Clock signal is 8Mhz. TFT LCD is using 4.0 MBits/s.
 ```C
 /* USER CODE BEGIN SPI1_Init 0 */
 

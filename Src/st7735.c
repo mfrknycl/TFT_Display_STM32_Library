@@ -87,27 +87,27 @@ const uint8_t
 
 			
 /**
-	* @brief
-	*	@param
-	*	@retval
+	* @brief 	It starts SPI communication as making CS pin state high.
+	*	@param 	None
+	*	@retval None
 	*/			
 static void ST7735_Select() {
     HAL_GPIO_WritePin(ST7735_CS_GPIO_Port, ST7735_CS_Pin, GPIO_PIN_RESET);
 }
 
 /**
-	* @brief
-	*	@param
-	*	@retval
+	* @brief  It stops SPI communication as making CS pin state low.
+	*	@param  None
+	*	@retval None
 	*/		
 void ST7735_Unselect(void) {
     HAL_GPIO_WritePin(ST7735_CS_GPIO_Port, ST7735_CS_Pin, GPIO_PIN_SET);
 }
 
 /**
-	* @brief
-	*	@param
-	*	@retval
+	* @brief 	It resets. 
+	*	@param	None
+	*	@retval None
 	*/		
 static void ST7735_Reset() {
     HAL_GPIO_WritePin(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_RESET);
@@ -116,9 +116,9 @@ static void ST7735_Reset() {
 }
 
 /**
-	* @brief
-	*	@param
-	*	@retval
+	* @brief  Write 8-bit to the specified register.
+	*	@param  None
+	*	@retval None
 	*/		
 static void ST7735_WriteCommand(uint8_t cmd) {
     HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_RESET);
@@ -423,6 +423,11 @@ void ST7735_InvertColors(bool invert){
     ST7735_Unselect();
 }
 
+/**
+	* @brief 	It sets the Baud Rate to 4.0 Kbits/s for SPI communication for ST7735.
+	*	@param 	None
+	*	@retval None
+	*/
 void ST7735_SetBaudRate(){
 	
   /* USER CODE BEGIN SPI1_Init 0 */
